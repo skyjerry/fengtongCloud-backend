@@ -32,6 +32,8 @@ func init() {
 		beego.NSRouter("/deployments", &controllers.DeployController{}, "get:GetDeployments"),
 		beego.NSRouter("/deployment/update", &controllers.DeployController{}, "post:UpdateDeployment"),
 		beego.NSRouter("/deployment/:deploymentName/scale", &controllers.DeployController{}, "post:ScaleDeployment"),
+		beego.NSRouter("/deployment/create", &controllers.DeployController{}, "post:CreateDeploy"),
+		beego.NSRouter("/deployment/:deploymentName/delete", &controllers.DeployController{}, "post:DeleteDeploy"),
 
 		//pods
 		beego.NSRouter("/pods", &controllers.PodController{}, "get:GetPods"),
@@ -64,15 +66,5 @@ func init() {
 
 	}
 	beego.InsertFilter("/v1/*", beego.BeforeExec, FilterUser)
-
-	//beego.Router("/", &controllers.MainController{})
-	//beego.Router("/getPods", &controllers.MainController{}, "*:GetPods")
-	//beego.Router("/getServices", &controllers.MainController{}, "*:GetServices")
-	//beego.Router("/getDeployments", &controllers.MainController{}, "*:GetDeployments")
-	//beego.Router("/getNodes", &controllers.MainController{}, "*:GetNodes")
-	//beego.Router("/getNode", &controllers.MainController{}, "*:GetNode")
-	//
-	//beego.Router("/scaleService", &controllers.MainController{}, "*:ScaleService")
-	//beego.Router("/stopNode", &controllers.MainController{}, "*:StopNode")
 
 }

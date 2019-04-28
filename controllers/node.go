@@ -35,6 +35,7 @@ func (c *NodeController) GetNode() {
 	nodeName := c.Ctx.Input.Param(":nodeName")
 	if len(nodeName) == 0 {
 		c.ApiResponse(404, "获取失败", map[string]interface{}{})
+		return
 	}
 	node, _ := wacUtils.Clientset.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 
@@ -56,6 +57,7 @@ func (c *NodeController) StartNode() {
 		c.ApiResponse(500, "设置失败", map[string]interface{}{
 			"errInfo": err,
 		})
+		return
 	}
 
 	c.ApiResponse(200, "操作成功", map[string]interface{}{})
@@ -74,6 +76,7 @@ func (c *NodeController) StopNode() {
 		c.ApiResponse(500, "设置失败", map[string]interface{}{
 			"errInfo": err,
 		})
+		return
 	}
 	c.ApiResponse(200, "操作成功", map[string]interface{}{})
 }
