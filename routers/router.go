@@ -35,6 +35,10 @@ func init() {
 
 		//pods
 		beego.NSRouter("/pods", &controllers.PodController{}, "get:GetPods"),
+		beego.NSRouter("/pod/:podName/delete", &controllers.PodController{}, "post:DeletePod"),
+
+		//image
+		beego.NSRouter("/images", &controllers.ImageController{}, "get:GetImages"),
 
 		beego.NSRouter("/dashboard", &controllers.DashboardController{}, "get:GetDashboardInfo"),
 	)
