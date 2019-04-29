@@ -109,7 +109,7 @@ func (c *DeployController) DeleteDeploy() {
 func (c *DeployController) CreateDeploy() {
 	var PostParams struct {
 		AppName       string `json:"app_name,omitempty"`
-		Replicas      *int32 `json:"replicas,omitempty"`
+		Replicas      int32  `json:"replicas,omitempty"`
 		Labels        string `json:"labels,omitempty"`
 		Image         string `json:"image,omitempty"`
 		ContainerName string `json:"container_name,omitempty"`
@@ -117,7 +117,14 @@ func (c *DeployController) CreateDeploy() {
 	}
 
 	json.Unmarshal(c.Ctx.Input.RequestBody, &PostParams)
-
+	if PostParams.AppName == "" || PostParams.Replicas == 0 ||
+		PostParams.Labels == "" || PostParams.Image == "" || PostParams.ContainerName == "" ||
+		PostParams.ContainerPort == 0 {
+		c.ApiResponse(403, "信息不完整", map[string]interface{}{
+			"data": PostParams,
+		})
+		return
+	}
 	ImageInfo := strings.Split(PostParams.Image, ":")
 	var imagesName struct {
 		Repositories []string `json:"repositories,omitempty"`
@@ -161,7 +168,7 @@ func (c *DeployController) CreateDeploy() {
 			},
 		},
 		Spec: v1.DeploymentSpec{
-			Replicas: PostParams.Replicas,
+			Replicas: int32Ptr(PostParams.Replicas),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": PostParams.Labels,
