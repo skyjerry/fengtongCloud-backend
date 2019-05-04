@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego/httplib"
 	"k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
 	"wac/wacUtils"
@@ -108,12 +109,15 @@ func (c *DeployController) DeleteDeploy() {
 
 func (c *DeployController) CreateDeploy() {
 	var PostParams struct {
-		AppName       string `json:"app_name,omitempty"`
-		Replicas      int32  `json:"replicas,omitempty"`
-		Labels        string `json:"labels,omitempty"`
-		Image         string `json:"image,omitempty"`
-		ContainerName string `json:"container_name,omitempty"`
-		ContainerPort int32  `json:"container_port,omitempty"`
+		AppName           string             `json:"app_name,omitempty"`
+		Replicas          int32              `json:"replicas,omitempty"`
+		Labels            string             `json:"labels,omitempty"`
+		Image             string             `json:"image,omitempty"`
+		ContainerName     string             `json:"container_name,omitempty"`
+		ContainerPort     int32              `json:"container_port,omitempty"`
+		CpuRequirement    *resource.Quantity `json:"cpu_requirement"`
+		MemoryRequirement *resource.Quantity `json:"memory_requirement"`
+		RunAsPrivileged   bool               `json:"runAsPrivileged"`
 	}
 
 	json.Unmarshal(c.Ctx.Input.RequestBody, &PostParams)
@@ -197,6 +201,18 @@ func (c *DeployController) CreateDeploy() {
 				},
 			},
 		},
+	}
+	//CPU限制
+	if PostParams.CpuRequirement != nil {
+		deployment.Spec.Template.Spec.Containers[0].Resources.Limits[apiv1.ResourceCPU] = *PostParams.CpuRequirement
+	}
+	//Memory限制
+	if PostParams.MemoryRequirement != nil {
+		deployment.Spec.Template.Spec.Containers[0].Resources.Limits[apiv1.ResourceMemory] = *PostParams.MemoryRequirement
+	}
+	//特权模式运行
+	if PostParams.RunAsPrivileged {
+		deployment.Spec.Template.Spec.Containers[0].SecurityContext.Privileged = &PostParams.RunAsPrivileged
 	}
 
 	result, err := wacUtils.Clientset.AppsV1().Deployments("default").Create(deployment)
